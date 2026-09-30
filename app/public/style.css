@@ -69,6 +69,41 @@ h1 {
   transform: scaleX(-1); /* mirror, feels natural for self-capture */
 }
 
+#overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* stays aligned with the mirrored video */
+  pointer-events: none;
+}
+
+.step {
+  font-size: 14px;
+  color: var(--paper);
+  margin: 0 0 10px;
+  min-height: 20px;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(11, 13, 16, 0.8);
+  color: var(--amber);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hint.ready {
+  color: #7fbf7f;
+}
+
 .bracket {
   position: absolute;
   width: 26px;
@@ -85,27 +120,55 @@ h1 {
   display: flex;
   gap: 8px;
   margin-top: 12px;
-  min-height: 52px;
 }
 
-.filmstrip img {
-  width: 52px;
-  height: 52px;
-  object-fit: cover;
+.slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--dim);
+  font: inherit;
+  font-size: 11px;
+}
+
+.slot::before,
+.slot img {
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 6px;
+}
+
+.slot:not(.filled)::before {
+  content: '';
+  border: 1px dashed var(--line);
+}
+
+.slot.active::before {
+  border: 1px solid var(--amber);
+}
+
+.slot.active span {
+  color: var(--amber);
+}
+
+.slot img {
+  object-fit: cover;
+  transform: scaleX(-1); /* match the mirrored preview */
   border: 1px solid var(--line);
 }
 
-.filmstrip .placeholder {
-  width: 52px;
-  height: 52px;
-  border-radius: 6px;
-  border: 1px dashed var(--line);
-  color: var(--dim);
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.slot.filled {
+  cursor: pointer;
+}
+
+.slot.filled:hover img {
+  opacity: 0.6;
+  border-color: var(--amber-dim);
 }
 
 form {

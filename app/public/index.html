@@ -11,12 +11,16 @@
     <header>
       <span class="mark">◆</span>
       <h1>Add a face</h1>
-      <p class="sub">Capture a few angles so the lock can recognize you.</p>
+      <p class="sub">We'll guide you through a few angles so the lock can recognize you.</p>
     </header>
+
+    <p id="step" class="step"></p>
 
     <div class="scanner">
       <video id="video" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
       <canvas id="canvas" hidden></canvas>
+      <p id="hint" class="hint" hidden></p>
       <div class="bracket tl"></div>
       <div class="bracket tr"></div>
       <div class="bracket bl"></div>
@@ -38,6 +42,6 @@
     <p id="status" class="status"></p>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
