@@ -1,11 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 :root {
   --graphite: #14171c;
   --panel: #1b1f26;
   --line: #2b313b;
   --paper: #e8eaed;
   --dim: #838c99;
-  --amber: #e0a63a;
-  --amber-dim: #6b5527;
+  --amber: hsl(161, 74%, 35%);
+  --amber-dim: #0F785A;
   --radius: 10px;
 }
 
@@ -16,7 +17,7 @@ body {
   min-height: 100vh;
   background: var(--graphite);
   color: var(--paper);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Roboto', sans-serif;
   display: flex;
   justify-content: center;
   padding: 40px 20px;
@@ -37,8 +38,8 @@ header {
 }
 
 h1 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
   font-size: 28px;
   letter-spacing: 0.2px;
   margin: 6px 0 6px;
