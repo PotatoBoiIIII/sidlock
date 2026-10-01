@@ -44,23 +44,50 @@ export function measureHand(lm) {
   };
 }
 
+// Each check is a list of named conditions so debug mode can show which
+// ones are failing.
+
 // V: index and middle straight and spread apart, ring and pinky folded.
-export function isV(m) {
+function vConditions(m) {
   const { index, middle, ring, pinky } = m.joints;
-  return index > 155 && middle > 155 && ring < 120 && pinky < 120 && m.vSpread > 0.3;
+  return {
+    'index straight': index > 155,
+    'middle straight': middle > 155,
+    'ring folded': ring < 120,
+    'pinky folded': pinky < 120,
+    'index/middle spread': m.vSpread > 0.3
+  };
 }
 
 // C: all four fingers gently curled and held together, thumb running roughly
 // alongside them with a gap — the opening of the C.
-export function isC(m) {
+function cConditions(m) {
   const curled = Object.values(m.joints).filter((a) => a > 95 && a < 165).length;
-  return (
-    curled >= 3 &&
-    m.fingersTogether < 0.9 &&
-    m.thumbAlongIndex < 60 &&
-    m.thumbGap > 0.3 &&
-    m.thumbGap < 1.4
-  );
+  return {
+    '3+ fingers curled': curled >= 3,
+    'fingers together': m.fingersTogether < 0.9,
+    'thumb along fingers': m.thumbAlongIndex < 60,
+    'thumb gap': m.thumbGap > 0.3 && m.thumbGap < 1.4
+  };
+}
+
+const allPass = (conditions) => Object.values(conditions).every(Boolean);
+
+export function isV(m) {
+  return allPass(vConditions(m));
+}
+
+export function isC(m) {
+  return allPass(cConditions(m));
+}
+
+// Names of the conditions each letter is failing, for debug mode.
+export function explainHand(m) {
+  const failing = (conditions) =>
+    Object.entries(conditions)
+      .filter(([, ok]) => !ok)
+      .map(([name]) => name);
+  return { C: failing(cConditions(m)), V: failing(vConditions(m)) };
 }
 
 // True when one hand is a C and the other is a V.

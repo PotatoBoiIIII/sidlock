@@ -276,3 +276,15 @@ input[type="text"]:focus {
   text-align: center;
   text-decoration: none;
 }
+
+.debug {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--dim);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}

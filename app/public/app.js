@@ -3,7 +3,7 @@ import {
   FilesetResolver,
   HandLandmarker
 } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs';
-import { isCvSign } from './cv-gesture.js';
+import { explainHand, isCvSign, measureHand } from './cv-gesture.js';
 
 const video = document.getElementById('video');
 const overlay = document.getElementById('overlay');
@@ -29,6 +29,15 @@ const HAND_MODEL_URL =
 // Secret: hold the "CV" hand sign this long to open the easter egg page.
 const CV_HOLD_MS = 800;
 const HAND_CHECK_EVERY = 3; // frames; hand tracking is heavier than face detection
+
+// Add ?debug to the URL to see tracked hand points and why the CV sign
+// isn't being recognized.
+const DEBUG = new URLSearchParams(location.search).has('debug');
+const debugEl = DEBUG ? document.createElement('pre') : null;
+if (debugEl) {
+  debugEl.className = 'debug';
+  statusEl.after(debugEl);
+}
 
 // Each step asks for a different angle. Turn/tilt checks compare against the
 // pose recorded in the front-facing shot, so they adapt to each person's face.
@@ -79,6 +88,7 @@ let vision = null;
 let hands = null;
 let frameCount = 0;
 let cvSince = 0;
+let lastHands = [];
 
 function setStatus(message, kind = '') {
   statusEl.textContent = message;
@@ -151,6 +161,7 @@ function drawBox(box, ready) {
     overlay.height = video.videoHeight;
   }
   ctx.clearRect(0, 0, overlay.width, overlay.height);
+  if (DEBUG) drawHands(ctx);
   if (!box) return;
 
   ctx.strokeStyle = ready ? '#7fbf7f' : '#e0a63a';
@@ -230,12 +241,46 @@ function evaluate(detections, now) {
 
 function checkCvSign(now) {
   const { landmarks } = hands.detectForVideo(video, now);
+  lastHands = landmarks;
+  if (DEBUG) showHandDebug(landmarks);
   if (!isCvSign(landmarks)) {
     cvSince = 0;
     return;
   }
   cvSince ||= now;
   if (now - cvSince >= CV_HOLD_MS) openEasterEgg();
+}
+
+function showHandDebug(landmarks) {
+  if (landmarks.length === 0) {
+    debugEl.textContent = 'No hands detected — make sure both hands are in frame.';
+    return;
+  }
+  const lines = landmarks.map((lm, i) => {
+    const m = measureHand(lm);
+    const why = explainHand(m);
+    const j = m.joints;
+    return [
+      `Hand ${i + 1}: ${why.C.length === 0 ? 'C ✓' : why.V.length === 0 ? 'V ✓' : 'neither'}`,
+      `  joints  index ${j.index.toFixed(0)}° middle ${j.middle.toFixed(0)}° ring ${j.ring.toFixed(0)}° pinky ${j.pinky.toFixed(0)}°`,
+      `  spread ${m.vSpread.toFixed(2)}  together ${m.fingersTogether.toFixed(2)}  thumbGap ${m.thumbGap.toFixed(2)}  thumbAngle ${m.thumbAlongIndex.toFixed(0)}°`,
+      `  C missing: ${why.C.join(', ') || '—'}`,
+      `  V missing: ${why.V.join(', ') || '—'}`
+    ].join('\n');
+  });
+  if (landmarks.length < 2) lines.push('Only one hand detected — need both.');
+  debugEl.textContent = lines.join('\n\n');
+}
+
+function drawHands(ctx) {
+  ctx.fillStyle = '#5ab0ff';
+  for (const lm of lastHands) {
+    for (const p of lm) {
+      ctx.beginPath();
+      ctx.arc(p.x * overlay.width, p.y * overlay.height, overlay.width / 200, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 }
 
 function openEasterEgg() {
@@ -420,5 +465,8 @@ if (await startCamera()) {
     .then((landmarker) => {
       hands = landmarker;
     })
-    .catch((err) => console.warn('Hand tracking unavailable:', err));
+    .catch((err) => {
+      console.warn('Hand tracking unavailable:', err);
+      if (debugEl) debugEl.textContent = `Hand tracking failed to load: ${err.message}`;
+    });
 }
