@@ -1,7 +1,9 @@
 import {
   FaceDetector,
-  FilesetResolver
+  FilesetResolver,
+  HandLandmarker
 } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs';
+import { isCvSign } from './cv-gesture.js';
 
 const video = document.getElementById('video');
 const overlay = document.getElementById('overlay');
@@ -21,6 +23,12 @@ const MAX_WIDTH = 640; // downscale before sending; plenty for face encodings
 const WASM_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm';
 const MODEL_URL =
   'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
+const HAND_MODEL_URL =
+  'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+
+// Secret: hold the "CV" hand sign this long to open the easter egg page.
+const CV_HOLD_MS = 800;
+const HAND_CHECK_EVERY = 3; // frames; hand tracking is heavier than face detection
 
 // Each step asks for a different angle. Turn/tilt checks compare against the
 // pose recorded in the front-facing shot, so they adapt to each person's face.
@@ -66,6 +74,11 @@ let latest = { ok: false, pose: null };
 let brightness = 255;
 let lastBrightnessCheck = 0;
 let busy = false;
+
+let vision = null;
+let hands = null;
+let frameCount = 0;
+let cvSince = 0;
 
 function setStatus(message, kind = '') {
   statusEl.textContent = message;
@@ -215,30 +228,78 @@ function evaluate(detections, now) {
   return { ok: true, hint: 'Looks good — hold still and capture', box, pose };
 }
 
+function checkCvSign(now) {
+  const { landmarks } = hands.detectForVideo(video, now);
+  if (!isCvSign(landmarks)) {
+    cvSince = 0;
+    return;
+  }
+  cvSince ||= now;
+  if (now - cvSince >= CV_HOLD_MS) openEasterEgg();
+}
+
+function openEasterEgg() {
+  hands = null; // stop checking while we navigate away
+  try {
+    sessionStorage.setItem('sidlock-cv', '1');
+  } catch {}
+  document.querySelector('.scanner').classList.add('unlocked');
+  setTimeout(() => {
+    window.location.href = 'egg.html';
+  }, 600);
+}
+
 function detectLoop() {
-  if (detector && video.readyState >= 2) {
+  if (video.readyState >= 2) {
     const now = performance.now();
-    const { detections } = detector.detectForVideo(video, now);
-    const result = evaluate(detections, now);
-    latest = result;
-    drawBox(result.box, result.ok);
-    setHint(result.hint, result.ok);
-    updateCaptureButton();
+    frameCount++;
+
+    if (detector) {
+      const { detections } = detector.detectForVideo(video, now);
+      const result = evaluate(detections, now);
+      latest = result;
+      drawBox(result.box, result.ok);
+      setHint(result.hint, result.ok);
+      updateCaptureButton();
+    }
+
+    if (hands && frameCount % HAND_CHECK_EVERY === 0) checkCvSign(now);
   }
   requestAnimationFrame(detectLoop);
 }
 
+async function loadVision() {
+  vision ||= await FilesetResolver.forVisionTasks(WASM_URL);
+  return vision;
+}
+
+// Loaded separately from the face detector so a failure here never breaks
+// enrollment — the easter egg just quietly doesn't work.
+async function loadHands() {
+  const options = (delegate) => ({
+    baseOptions: { modelAssetPath: HAND_MODEL_URL, delegate },
+    runningMode: 'VIDEO',
+    numHands: 2
+  });
+  const fileset = await loadVision();
+  try {
+    return await HandLandmarker.createFromOptions(fileset, options('GPU'));
+  } catch {
+    return await HandLandmarker.createFromOptions(fileset, options('CPU'));
+  }
+}
+
 async function loadDetector() {
-  const vision = await FilesetResolver.forVisionTasks(WASM_URL);
+  const fileset = await loadVision();
   const options = (delegate) => ({
     baseOptions: { modelAssetPath: MODEL_URL, delegate },
     runningMode: 'VIDEO',
     minDetectionConfidence: 0.6
   });
   try {
-    return await FaceDetector.createFromOptions(vision, options('GPU'));
+    return await FaceDetector.createFromOptions(fileset, options('GPU'));
   } catch {
-    return await FaceDetector.createFromOptions(vision, options('CPU'));
+    return await FaceDetector.createFromOptions(fileset, options('CPU'));
   }
 }
 
@@ -354,4 +415,10 @@ if (await startCamera()) {
   }
   renderFilmstrip();
   requestAnimationFrame(detectLoop);
+
+  loadHands()
+    .then((landmarker) => {
+      hands = landmarker;
+    })
+    .catch((err) => console.warn('Hand tracking unavailable:', err));
 }

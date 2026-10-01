@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV — Fridge Lock</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    // Only reachable by showing the CV hand sign on the enrollment page.
+    // Not real security — just keeps people from stumbling onto it by URL.
+    try {
+      if (sessionStorage.getItem('sidlock-cv') !== '1') location.replace('/');
+    } catch {
+      location.replace('/');
+    }
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="mark">◆</span>
+      <h1>You found it.</h1>
+      <p class="sub">CV — secret page unlocked.</p>
+    </header>
+
+    <div class="egg-placeholder">
+      <p>Easter egg content coming soon.</p>
+    </div>
+
+    <a href="/" class="btn ghost egg-back">Back to enrollment</a>
+  </div>
+</body>
+</html>
