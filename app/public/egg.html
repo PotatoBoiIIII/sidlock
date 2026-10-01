@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV — Fridge Lock</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body)"
+  ></script>
   <script>
     // Only reachable by showing the CV hand sign on the enrollment page.
     // Not real security — just keeps people from stumbling onto it by URL.
@@ -16,16 +23,184 @@
   </script>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap wide">
     <header>
       <span class="mark">◆</span>
       <h1>You found it.</h1>
-      <p class="sub">CV — secret page unlocked.</p>
+      <p class="sub">CV — secret page unlocked. Your reward: physics.</p>
     </header>
 
-    <div class="egg-placeholder">
-      <p>Easter egg content coming soon.</p>
-    </div>
+    <!-- Placeholder content: original practice questions written in the style
+         of AP Physics C: E&M free-response questions. -->
+    <section class="frq">
+      <p class="frq-kicker">Physics C: Electricity and Magnetism · Free-Response Practice</p>
+      <p class="frq-meta">2 questions · Suggested time: 30 minutes · Show all your work</p>
+
+      <article class="frq-q">
+        <h2>Question 1 <span>15 points</span></h2>
+
+        <figure>
+          <svg viewBox="0 0 260 240" role="img" aria-label="Charged sphere of radius R inside a conducting shell with inner radius 2R and outer radius 3R">
+            <circle cx="120" cy="120" r="105" class="shell" />
+            <circle cx="120" cy="120" r="70" class="cavity" />
+            <circle cx="120" cy="120" r="35" class="sphere" />
+            <line x1="120" y1="120" x2="155" y2="120" class="dim" />
+            <text x="132" y="114">R</text>
+            <line x1="120" y1="120" x2="70.5" y2="169.5" class="dim" />
+            <text x="80" y="150">2R</text>
+            <line x1="120" y1="120" x2="120" y2="15" class="dim" />
+            <text x="125" y="42">3R</text>
+            <line x1="215" y1="70" x2="240" y2="40" class="lead" />
+            <text x="200" y="34">conductor</text>
+          </svg>
+          <figcaption>Figure 1 (not to scale)</figcaption>
+        </figure>
+
+        <p>
+          A nonconducting solid sphere of radius \(R\) has a nonuniform volume charge density
+          \(\rho(r) = \rho_0\left(1 - \dfrac{r}{R}\right)\) for \(r \le R\), where \(\rho_0\) is a
+          positive constant and \(r\) is the distance from the center. The sphere is surrounded by a
+          concentric, uncharged conducting spherical shell of inner radius \(2R\) and outer radius
+          \(3R\), as shown in Figure 1. Express all algebraic answers in terms of \(\rho_0\), \(R\),
+          \(r\), and fundamental constants, as appropriate.
+        </p>
+
+        <ol class="parts">
+          <li>Derive an expression for the total charge \(Q\) on the nonconducting sphere.</li>
+          <li>
+            Using Gauss's law, derive an expression for the magnitude of the electric field
+            \(E(r)\) in each of the following regions.
+            <ol class="subparts">
+              <li>\(r &lt; R\)</li>
+              <li>\(R &lt; r &lt; 2R\)</li>
+              <li>\(2R &lt; r &lt; 3R\)</li>
+              <li>\(r &gt; 3R\)</li>
+            </ol>
+          </li>
+          <li>
+            Determine the distance \(r\) from the center at which the electric field inside the
+            nonconducting sphere is a maximum. Justify your answer.
+          </li>
+          <li>
+            On the axes below, sketch a graph of \(E\) as a function of \(r\) for
+            \(0 \le r \le 4R\).
+            <figure>
+              <svg viewBox="0 0 320 170" role="img" aria-label="Blank axes, E versus r, from 0 to 4R">
+                <line x1="30" y1="140" x2="305" y2="140" class="axis" />
+                <line x1="30" y1="140" x2="30" y2="12" class="axis" />
+                <g class="grid">
+                  <line x1="95" y1="140" x2="95" y2="12" />
+                  <line x1="160" y1="140" x2="160" y2="12" />
+                  <line x1="225" y1="140" x2="225" y2="12" />
+                  <line x1="290" y1="140" x2="290" y2="12" />
+                </g>
+                <text x="91" y="156">R</text>
+                <text x="152" y="156">2R</text>
+                <text x="217" y="156">3R</text>
+                <text x="282" y="156">4R</text>
+                <text x="26" y="156">0</text>
+                <text x="12" y="20">E</text>
+                <text x="300" y="132">r</text>
+              </svg>
+            </figure>
+          </li>
+          <li>
+            Derive an expression for the potential difference \(V(R) - V(2R)\) between the
+            surface of the nonconducting sphere and the inner surface of the shell.
+          </li>
+          <li>
+            Determine the surface charge density \(\sigma\) on the inner surface of the conducting
+            shell.
+          </li>
+          <li>
+            The outer surface of the shell is now connected to Earth by a conducting wire. Indicate
+            whether the magnitude of the electric field at \(r = \tfrac{3}{2}R\) increases,
+            decreases, or remains the same. Justify your answer.
+          </li>
+        </ol>
+      </article>
+
+      <article class="frq-q">
+        <h2>Question 2 <span>15 points</span></h2>
+
+        <figure>
+          <svg viewBox="0 0 320 210" role="img" aria-label="Two parallel rails on an incline connected by a capacitor, with a sliding bar in a magnetic field">
+            <g class="field">
+              <circle cx="60" cy="70" r="2.5" /><circle cx="110" cy="70" r="2.5" /><circle cx="160" cy="70" r="2.5" />
+              <circle cx="60" cy="120" r="2.5" /><circle cx="110" cy="120" r="2.5" /><circle cx="160" cy="120" r="2.5" />
+              <circle cx="60" cy="178" r="2.5" /><circle cx="160" cy="178" r="2.5" />
+            </g>
+            <line x1="35" y1="40" x2="35" y2="200" class="rail" />
+            <line x1="185" y1="40" x2="185" y2="200" class="rail" />
+            <line x1="35" y1="40" x2="100" y2="40" class="wire" />
+            <line x1="120" y1="40" x2="185" y2="40" class="wire" />
+            <line x1="100" y1="28" x2="100" y2="52" class="plate" />
+            <line x1="120" y1="28" x2="120" y2="52" class="plate" />
+            <text x="104" y="20">C</text>
+            <rect x="30" y="128" width="160" height="8" rx="2" class="bar" />
+            <text x="195" y="137">m</text>
+            <line x1="20" y1="40" x2="20" y2="200" class="dim" />
+            <text x="6" y="124">↓</text>
+            <line x1="35" y1="152" x2="185" y2="152" class="dim" />
+            <text x="104" y="166">ℓ</text>
+            <text x="166" y="102">B</text>
+            <g class="inset">
+              <line x1="225" y1="190" x2="310" y2="190" />
+              <line x1="225" y1="190" x2="310" y2="135" />
+              <path d="M 260 190 A 35 35 0 0 0 254.5 171" />
+              <text x="266" y="185">θ</text>
+              <text x="236" y="128">side view</text>
+            </g>
+          </svg>
+          <figcaption>Figure 2 — view perpendicular to the plane of the rails (arrow points down the incline)</figcaption>
+        </figure>
+
+        <p>
+          Two long, parallel, frictionless conducting rails of negligible resistance are separated
+          by a distance \(\ell\) and lie in a plane inclined at angle \(\theta\) above the
+          horizontal. The rails are connected at the top by an initially uncharged capacitor of
+          capacitance \(C\). A uniform magnetic field of magnitude \(B\) is directed perpendicular
+          to the plane of the rails, as shown in Figure 2. A conducting bar of mass \(m\) and
+          negligible resistance is released from rest on the rails at time \(t = 0\) and remains
+          perpendicular to them as it slides. Express all algebraic answers in terms of \(m\),
+          \(\ell\), \(\theta\), \(C\), \(B\), \(t\), and physical constants, as appropriate.
+        </p>
+
+        <ol class="parts">
+          <li>
+            On a dot representing the bar, draw and label the forces (not components) exerted on
+            the bar while it is sliding down the rails.
+          </li>
+          <li>
+            Write an expression for the current \(I\) in the bar in terms of the bar's
+            acceleration \(a\).
+          </li>
+          <li>
+            Derive an expression for the acceleration \(a\) of the bar. Show that the bar moves
+            with constant acceleration.
+          </li>
+          <li>Derive an expression for the energy stored in the capacitor as a function of time \(t\).</li>
+          <li>
+            Show that the total mechanical energy lost by the bar at time \(t\) equals the energy
+            stored in the capacitor. Explain any discrepancy, or explain why there is none.
+          </li>
+          <li>
+            The capacitor is replaced by a resistor of resistance \(R_0\), and the bar is again
+            released from rest.
+            <ol class="subparts">
+              <li>Write, but do not solve, a differential equation for the speed \(v\) of the bar.</li>
+              <li>Solve the differential equation to determine \(v(t)\).</li>
+              <li>Derive an expression for the terminal speed \(v_T\) of the bar.</li>
+            </ol>
+          </li>
+        </ol>
+      </article>
+
+      <p class="frq-source">
+        Original practice questions. For real released exams, see the College Board's
+        <a href="https://apcentral.collegeboard.org/courses/ap-physics-c-electricity-and-magnetism/exam/past-exam-questions" target="_blank" rel="noopener">past exam questions</a>.
+      </p>
+    </section>
 
     <a href="/" class="btn ghost egg-back">Back to enrollment</a>
   </div>

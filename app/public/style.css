@@ -259,15 +259,125 @@ input[type="text"]:focus {
 .status.err { color: #d97757; }
 
 /* Easter egg page */
-.egg-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 4 / 3;
-  border: 1px dashed var(--line);
+.wrap.wide {
+  max-width: 680px;
+}
+
+.frq {
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
+  padding: 24px 22px;
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+.frq-kicker {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.frq-meta {
+  margin: 4px 0 0;
+  font-size: 13px;
   color: var(--dim);
-  font-size: 14px;
+}
+
+.frq-q {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.frq-q h2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: 21px;
+}
+
+.frq-q h2 span {
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.frq figure {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.frq figure svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 13px;
+  fill: var(--paper);
+}
+
+.frq figcaption {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.frq .shell { fill: var(--line); stroke: var(--dim); }
+.frq .cavity { fill: var(--panel); stroke: var(--dim); }
+.frq .sphere { fill: var(--amber-dim); stroke: var(--amber); }
+.frq .dim, .frq .lead { stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 3; }
+.frq .lead { stroke-dasharray: none; }
+.frq .axis { stroke: var(--paper); stroke-width: 1.5; }
+.frq .grid line { stroke: var(--line); stroke-dasharray: 2 4; }
+.frq .rail { stroke: var(--paper); stroke-width: 3; }
+.frq .wire { stroke: var(--paper); stroke-width: 1.5; }
+.frq .plate { stroke: var(--paper); stroke-width: 3; }
+.frq .bar { fill: var(--amber); }
+.frq .field circle { fill: var(--dim); }
+.frq .inset line, .frq .inset path { stroke: var(--dim); stroke-width: 1.5; fill: none; }
+
+.frq .parts {
+  list-style: lower-alpha;
+  padding-left: 22px;
+  margin: 16px 0 0;
+}
+
+.frq .parts > li {
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.frq .parts > li::marker {
+  content: '(' counter(list-item, lower-alpha) ')  ';
+  color: var(--amber);
+}
+
+.frq .subparts {
+  list-style: lower-roman;
+  margin: 8px 0 0;
+  padding-left: 22px;
+}
+
+.frq .subparts > li::marker {
+  content: counter(list-item, lower-roman) '.  ';
+  color: var(--dim);
+}
+
+.frq-source {
+  margin: 24px 0 0;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.frq-source a {
+  color: var(--amber);
 }
 
 .egg-back {
