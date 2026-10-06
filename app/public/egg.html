@@ -23,6 +23,13 @@
   </script>
 </head>
 <body>
+  <div class="egg-gate" id="eggGate" role="button" tabindex="0" aria-label="Enter the secret page">
+    <span class="mark">◆</span>
+    <p class="gate-title">Secret unlocked</p>
+    <p class="gate-sub">Tap to enter · 🔊 sound on</p>
+  </div>
+  <button type="button" class="sound-toggle" id="soundToggle" aria-pressed="true" hidden>🔊 Sound on</button>
+
   <div class="wrap wide">
     <header>
       <span class="mark">◆</span>
@@ -204,5 +211,7 @@
 
     <a href="/" class="btn ghost egg-back">Back to enrollment</a>
   </div>
+
+  <script type="module" src="egg-audio.js"></script>
 </body>
 </html>
