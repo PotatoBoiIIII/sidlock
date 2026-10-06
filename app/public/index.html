@@ -3,45 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Enroll — Fridge Lock</title>
+  <title>Sidlock — Fridge Lock</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div class="wrap">
-    <header>
+<body class="home">
+  <main class="home-main" data-state="idle">
+    <section class="home-idle">
       <span class="mark">◆</span>
-      <h1>Add a face</h1>
-      <p class="sub">We'll guide you through a few angles so the lock can recognize you.</p>
-    </header>
+      <h1>Open your fridge</h1>
+      <p class="sub">Look at the camera to unlock.</p>
+      <button type="button" id="openBtn" class="btn primary home-cta">Open fridge</button>
+    </section>
 
-    <p id="step" class="step"></p>
-
-    <div class="scanner">
-      <video id="video" autoplay playsinline muted></video>
-      <canvas id="overlay"></canvas>
-      <canvas id="canvas" hidden></canvas>
-      <p id="hint" class="hint" hidden></p>
-      <div class="bracket tl"></div>
-      <div class="bracket tr"></div>
-      <div class="bracket bl"></div>
-      <div class="bracket br"></div>
-    </div>
-
-    <div class="filmstrip" id="filmstrip"></div>
-
-    <form id="form">
-      <label for="name">Name</label>
-      <input id="name" type="text" placeholder="e.g. Sidney Sztajnkrycer" autocomplete="off" required />
-
-      <div class="actions">
-        <button type="button" id="captureBtn" class="btn ghost">Capture photo</button>
-        <button type="submit" id="submitBtn" class="btn primary" disabled>Enroll face</button>
+    <section class="home-scan">
+      <div class="scanner">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+        <canvas id="canvas" hidden></canvas>
+        <p id="hint" class="hint" hidden></p>
+        <div class="bracket tl"></div>
+        <div class="bracket tr"></div>
+        <div class="bracket bl"></div>
+        <div class="bracket br"></div>
       </div>
-    </form>
+      <p id="scanStatus" class="status">Starting camera…</p>
+      <button type="button" id="cancelBtn" class="btn ghost">Cancel</button>
+    </section>
 
-    <p id="status" class="status"></p>
-  </div>
+    <section class="home-result">
+      <div id="resultIcon" class="result-icon"></div>
+      <h1 id="resultTitle"></h1>
+      <p id="resultText" class="sub"></p>
+      <button type="button" id="againBtn" class="btn ghost home-cta">Try again</button>
+      <p id="demoNote" class="demo-note" hidden>Demo mode — no lock connected yet, so this result is simulated.</p>
+    </section>
+  </main>
 
-  <script type="module" src="app.js"></script>
+  <footer class="home-footer">
+    <a href="enroll.html" class="enroll-link">Enroll a new face →</a>
+  </footer>
+
+  <script type="module" src="home.js"></script>
 </body>
 </html>

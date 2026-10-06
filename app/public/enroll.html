@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enroll — Fridge Lock</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <a href="/" class="back-link">← Back</a>
+    <header>
+      <span class="mark">◆</span>
+      <h1>Add a face</h1>
+      <p class="sub">We'll guide you through a few angles so the lock can recognize you.</p>
+    </header>
+
+    <p id="step" class="step"></p>
+
+    <div class="scanner">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
+      <canvas id="canvas" hidden></canvas>
+      <p id="hint" class="hint" hidden></p>
+      <div class="bracket tl"></div>
+      <div class="bracket tr"></div>
+      <div class="bracket bl"></div>
+      <div class="bracket br"></div>
+    </div>
+
+    <div class="filmstrip" id="filmstrip"></div>
+
+    <form id="form">
+      <label for="name">Name</label>
+      <input id="name" type="text" placeholder="e.g. Sidney Sztajnkrycer" autocomplete="off" required />
+
+      <div class="actions">
+        <button type="button" id="captureBtn" class="btn ghost">Capture photo</button>
+        <button type="submit" id="submitBtn" class="btn primary" disabled>Enroll face</button>
+      </div>
+    </form>
+
+    <p id="status" class="status"></p>
+  </div>
+
+  <script type="module" src="enroll.js"></script>
+</body>
+</html>
