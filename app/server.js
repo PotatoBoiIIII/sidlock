@@ -74,7 +74,7 @@ app.post('/api/unlock', async (req, res) => {
 
   if (MOCK_UNLOCK) {
     const recognized = Math.random() < 0.8;
-    return res.json({ success: true, recognized, name: recognized ? 'friend' : null, mock: true });
+    return res.json({ success: true, recognized, name: null, mock: true });
   }
 
   try {

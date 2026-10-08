@@ -1,3 +1,4 @@
+import { createHint, createSmoothBox, flash } from './scan-ui.js';
 import { loadFaceDetector } from './vision.js';
 
 const video = document.getElementById('video');
@@ -104,12 +105,21 @@ function renderFilmstrip() {
   });
 
   const step = active === -1 ? null : STEPS[active];
-  stepLabel.textContent = step
+  setStepLabel(step
     ? `Step ${active + 1} of ${STEPS.length} · ${step.prompt}`
-    : 'All angles captured — enter a name and enroll.';
+    : 'All angles captured — enter a name and enroll.');
 
   submitBtn.disabled = busy || capturedCount() < MIN_PHOTOS || !shots[0];
   updateCaptureButton();
+}
+
+function setStepLabel(text) {
+  if (stepLabel.textContent === text) return;
+  stepLabel.classList.add('fading');
+  setTimeout(() => {
+    stepLabel.textContent = text;
+    stepLabel.classList.remove('fading');
+  }, stepLabel.textContent ? 150 : 0);
 }
 
 function updateCaptureButton() {
@@ -118,26 +128,20 @@ function updateCaptureButton() {
   captureBtn.disabled = busy || done || (detector && !latest.ok);
 }
 
+const hint = createHint(hintEl);
+const smoothBox = createSmoothBox(overlay);
+
 function setHint(text, ready) {
-  hintEl.textContent = text;
-  hintEl.classList.toggle('ready', ready);
-  hintEl.hidden = !text;
+  hint.set(text, ready);
 }
 
 function drawBox(box, ready) {
-  const ctx = overlay.getContext('2d');
   if (overlay.width !== video.videoWidth || overlay.height !== video.videoHeight) {
     overlay.width = video.videoWidth;
     overlay.height = video.videoHeight;
   }
-  ctx.clearRect(0, 0, overlay.width, overlay.height);
-  if (!box) return;
-
-  ctx.strokeStyle = ready ? '#7fbf7f' : '#e0a63a';
-  ctx.lineWidth = Math.max(2, overlay.width / 240);
-  ctx.beginPath();
-  ctx.roundRect(box.originX, box.originY, box.width, box.height, 12);
-  ctx.stroke();
+  // Outline fills in green once the angle and framing are right.
+  smoothBox.draw(box, { hold: ready ? 1 : 0, ready });
 }
 
 // ---------- Face checks ----------
@@ -247,6 +251,7 @@ captureBtn.addEventListener('click', () => {
   if (detector && !latest.ok) return;
 
   shots[i] = { dataUrl: grabFrame(), pose: latest.pose ?? null };
+  flash(document.querySelector('.scanner'));
   latest = { ok: false, pose: null };
   renderFilmstrip();
 
@@ -320,15 +325,17 @@ async function startCamera() {
 }
 
 renderFilmstrip();
-setHint('Starting camera…', false);
+video.addEventListener('playing', () => video.classList.add('live'));
+
+hint.now('Starting camera…');
 
 if (await startCamera()) {
-  setHint('Loading face detection…', false);
+  hint.now('Loading face detection…');
   try {
     detector = await loadFaceDetector();
   } catch (err) {
     console.error('Face detector failed to load:', err);
-    setHint('', false);
+    hint.now('');
     setStatus('Face checks unavailable (offline?). You can still capture manually.', 'err');
   }
   renderFilmstrip();

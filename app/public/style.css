@@ -7,10 +7,50 @@
   --dim: #838c99;
   --amber: hsl(161, 74%, 35%);
   --amber-dim: #0F785A;
-  --radius: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1); /* quick start, soft landing */
 }
 
 * { box-sizing: border-box; }
+
+/* Slowly drifting colored glows behind everything */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 25% 30%, hsla(161, 74%, 35%, 0.22), transparent 32%),
+    radial-gradient(circle at 75% 70%, hsla(190, 70%, 40%, 0.16), transparent 30%),
+    radial-gradient(circle at 70% 20%, hsla(140, 60%, 45%, 0.10), transparent 25%);
+  filter: blur(40px);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+/* Faint dot grid that fades out toward the edges */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1.5px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+  animation: grid-pan 40s linear infinite;
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate(6%, -4%) rotate(20deg) scale(1.08); }
+  100% { transform: translate(-5%, 5%) rotate(-15deg) scale(0.95); }
+}
+
+@keyframes grid-pan {
+  to { background-position: 26px 52px; }
+}
 
 body {
   margin: 0;
@@ -57,7 +97,7 @@ h1 {
   width: 100%;
   aspect-ratio: 4 / 3;
   background: #0b0d10;
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--line);
 }
@@ -67,6 +107,12 @@ h1 {
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1); /* mirror, feels natural for self-capture */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#video.live {
+  opacity: 1;
 }
 
 #overlay {
@@ -98,6 +144,11 @@ h1 {
   color: var(--amber);
   font-size: 13px;
   white-space: nowrap;
+  transition: opacity 0.15s ease, color 0.3s ease;
+}
+
+.hint.fading {
+  opacity: 0;
 }
 
 .hint.ready {
@@ -106,15 +157,66 @@ h1 {
 
 .bracket {
   position: absolute;
-  width: 26px;
-  height: 26px;
-  border: 2px solid var(--amber);
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--amber);
   opacity: 0.85;
+  transition: border-color 0.3s ease, opacity 0.3s ease;
 }
-.bracket.tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
-.bracket.tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
-.bracket.bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
-.bracket.br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+.scanner.scanning .bracket {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% { opacity: 0.4; }
+}
+
+/* Shutter flash when a photo is taken */
+.scanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scanner.flash::after {
+  animation: shutter 0.45s ease-out;
+}
+
+@keyframes shutter {
+  from { opacity: 0.55; }
+  to { opacity: 0; }
+}
+
+/* Soft light sweep while the photo is being checked */
+.scanner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.12) 50%, transparent 70%);
+  background-size: 250% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.scanner.checking::before {
+  opacity: 1;
+  animation: sweep 1.1s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+.bracket.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; border-top-left-radius: 14px; }
+.bracket.tr { top: 14px; right: 14px; border-left: none; border-bottom: none; border-top-right-radius: 14px; }
+.bracket.bl { bottom: 14px; left: 14px; border-right: none; border-top: none; border-bottom-left-radius: 14px; }
+.bracket.br { bottom: 14px; right: 14px; border-left: none; border-top: none; border-bottom-right-radius: 14px; }
 
 /* Brief flash when the secret hand sign is recognized */
 .scanner.unlocked .bracket {
@@ -150,7 +252,7 @@ h1 {
 .slot img {
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 .slot:not(.filled)::before {
@@ -170,6 +272,17 @@ h1 {
   object-fit: cover;
   transform: scaleX(-1); /* match the mirrored preview */
   border: 1px solid var(--line);
+  animation: thumb-in 0.35s var(--ease);
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+@keyframes thumb-in {
+  from { opacity: 0; transform: scaleX(-1) scale(0.85); }
+}
+
+.slot::before,
+.slot span {
+  transition: border-color 0.3s ease, color 0.3s ease;
 }
 
 .slot.filled {
@@ -201,6 +314,7 @@ input[type="text"] {
   color: var(--paper);
   font-size: 15px;
   outline: none;
+  transition: border-color 0.2s ease;
 }
 
 input[type="text"]:focus {
@@ -216,12 +330,17 @@ input[type="text"]:focus {
 .btn {
   flex: 1;
   padding: 12px 16px;
-  border-radius: var(--radius);
+  border-radius: 999px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease, border-color 0.2s ease, background-color 0.2s ease,
+    transform 0.15s var(--ease);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .btn:disabled {
@@ -253,6 +372,11 @@ input[type="text"]:focus {
   font-size: 14px;
   min-height: 20px;
   color: var(--dim);
+  transition: opacity 0.15s ease;
+}
+
+.status.fading {
+  opacity: 0;
 }
 
 .status.ok { color: #7fbf7f; }
@@ -266,7 +390,7 @@ input[type="text"]:focus {
 .frq {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 24px 22px;
   line-height: 1.65;
   font-size: 15px;
@@ -477,22 +601,30 @@ body.home {
   flex: 1;
   width: 100%;
   max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid;
+  align-items: center;
 }
 
+/* All screens share one grid cell; the active one fades and rises in. */
 .home-main > section {
-  display: none;
+  grid-area: 1 / 1;
+  display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 0.35s ease, transform 0.5s var(--ease), visibility 0s linear 0.35s;
 }
 
 .home-main[data-state='idle'] .home-idle,
 .home-main[data-state='scan'] .home-scan,
 .home-main[data-state^='result'] .home-result {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.35s ease 0.1s, transform 0.5s var(--ease) 0.1s, visibility 0s;
 }
 
 .home-idle .mark {
@@ -528,29 +660,68 @@ body.home {
 }
 
 .result-icon {
-  width: 72px;
-  height: 72px;
+  position: relative;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34px;
-  font-weight: 700;
-  animation: pop 0.35s ease-out;
+}
+
+.result-icon svg {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.result-icon path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: draw 0.45s var(--ease) 0.35s forwards;
 }
 
 .result-icon.success {
   background: #7fbf7f;
-  color: var(--graphite);
+  stroke: var(--graphite);
+  animation: pop 0.5s var(--ease) 0.1s both;
+}
+
+/* Soft ring that ripples out on success */
+.result-icon.success::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #7fbf7f;
+  animation: ripple 1.2s ease-out 0.4s both;
 }
 
 .result-icon.fail {
   border: 2px solid #d97757;
-  color: #d97757;
+  stroke: #d97757;
+  animation: pop 0.5s var(--ease) 0.1s both, shake 0.4s ease-in-out 0.6s;
 }
 
 @keyframes pop {
-  from { transform: scale(0.5); opacity: 0; }
+  from { transform: scale(0.6); opacity: 0; }
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ripple {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.7); opacity: 0; }
+}
+
+@keyframes shake {
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
 }
 
 .demo-note {
@@ -568,6 +739,7 @@ body.home {
   color: var(--dim);
   font-size: 14px;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .enroll-link:hover,
@@ -578,4 +750,70 @@ body.home {
 .back-link {
   display: inline-block;
   margin-bottom: 16px;
+}
+
+/* Respect the "reduce motion" system setting: keep fades, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+  }
+
+  .home-main > section,
+  .btn {
+    transform: none !important;
+  }
+}
+
+.step {
+  transition: opacity 0.15s ease;
+}
+
+.step.fading {
+  opacity: 0;
+}
+
+/* Enrollment page: tighter spacing so everything fits on a laptop screen */
+body.enroll {
+  padding: 28px 20px 32px;
+}
+
+.enroll .back-link {
+  margin-bottom: 8px;
+}
+
+.enroll header {
+  margin-bottom: 16px;
+}
+
+.enroll .scanner {
+  aspect-ratio: auto;
+  height: min(315px, 36vh); /* shrinks on short windows; video crops to fit */
+}
+
+.enroll .slot::before,
+.enroll .slot img {
+  aspect-ratio: auto;
+  height: min(76px, 8vh);
+}
+
+.enroll form {
+  margin-top: 16px;
+}
+
+.enroll .actions {
+  margin-top: 12px;
+}
+
+.enroll .status {
+  margin-top: 12px;
+}
+
+/* Match the pill-shaped buttons below it */
+.enroll input[type="text"] {
+  border-radius: 999px;
+  padding: 12px 18px;
 }
