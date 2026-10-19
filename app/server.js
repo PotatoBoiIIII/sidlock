@@ -17,20 +17,6 @@ app.use(cors());
 app.use(express.json({ limit: '15mb' })); // photos as base64 can be a few MB each
 app.use(express.static('public'));
 
-// Reads the Pi's reply. A reply that isn't JSON (e.g. Flask's HTML 404 page
-// when the Pi is running older code without that route) gets a clear message
-// instead of being mistaken for the Pi being unreachable.
-async function readPiReply(piResponse, route) {
-  try {
-    return await piResponse.json();
-  } catch {
-    if (piResponse.status === 404) {
-      return { error: `The Pi doesn't have a ${route} route. Update the code on the Pi and restart it.` };
-    }
-    return { error: `The Pi sent an unexpected reply (HTTP ${piResponse.status}).` };
-  }
-}
-
 // Health check so you can quickly confirm the server is up.
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', piUrl: PI_URL });
@@ -54,7 +40,7 @@ app.post('/api/enroll', async (req, res) => {
       body: JSON.stringify({ name, images })
     });
 
-    const data = await readPiReply(piResponse, '/enroll');
+    const data = await piResponse.json();
 
     if (!piResponse.ok) {
       return res.status(piResponse.status).json({
@@ -73,6 +59,10 @@ app.post('/api/enroll', async (req, res) => {
   }
 });
 
+// Until the Pi is ready, unlocking is simulated unless PI_URL is set
+// explicitly. The response includes mock: true so the page can say so.
+const MOCK_UNLOCK = !process.env.PI_URL;
+
 // Sends one photo to the Pi's /unlock endpoint, which checks it against the
 // enrolled faces and opens the lock on a match.
 app.post('/api/unlock', async (req, res) => {
@@ -82,16 +72,19 @@ app.post('/api/unlock', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Provide a photo.' });
   }
 
+  if (MOCK_UNLOCK) {
+    const recognized = Math.random() < 0.8;
+    return res.json({ success: true, recognized, name: null, mock: true });
+  }
+
   try {
     const piResponse = await fetch(`${PI_URL}/unlock`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image }),
-      // Face matching on the Pi can take a few seconds; don't hang forever.
-      signal: AbortSignal.timeout(20000)
+      body: JSON.stringify({ image })
     });
 
-    const data = await readPiReply(piResponse, '/unlock');
+    const data = await piResponse.json();
 
     if (!piResponse.ok) {
       return res.status(piResponse.status).json({
@@ -113,5 +106,6 @@ app.post('/api/unlock', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Enrollment app running at http://localhost:${PORT}`);
-  console.log(`Forwarding enrollments and unlocks to Pi at: ${PI_URL}`);
+  console.log(`Forwarding enrollments to Pi at: ${PI_URL}`);
+  if (MOCK_UNLOCK) console.log('Unlock is simulated (set PI_URL to use the real Pi).');
 });
