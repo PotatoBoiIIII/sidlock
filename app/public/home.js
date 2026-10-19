@@ -18,7 +18,6 @@ const againBtn = document.getElementById('againBtn');
 const resultIcon = document.getElementById('resultIcon');
 const resultTitle = document.getElementById('resultTitle');
 const resultText = document.getElementById('resultText');
-const demoNote = document.getElementById('demoNote');
 
 const HOLD_MS = 900; // face must be steady this long; the outline fills meanwhile
 const SCAN_TIMEOUT_MS = 20000;
@@ -212,7 +211,6 @@ async function verify(image) {
   }
 
   stopCamera();
-  demoNote.hidden = !result.mock;
 
   if (result.success && result.recognized) {
     showResult('success', result.name ? `Welcome, ${result.name}` : 'Welcome', 'Fridge unlocked. Enjoy your snack.');

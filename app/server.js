@@ -59,10 +59,6 @@ app.post('/api/enroll', async (req, res) => {
   }
 });
 
-// Until the Pi is ready, unlocking is simulated unless PI_URL is set
-// explicitly. The response includes mock: true so the page can say so.
-const MOCK_UNLOCK = !process.env.PI_URL;
-
 // Sends one photo to the Pi's /unlock endpoint, which checks it against the
 // enrolled faces and opens the lock on a match.
 app.post('/api/unlock', async (req, res) => {
@@ -70,11 +66,6 @@ app.post('/api/unlock', async (req, res) => {
 
   if (typeof image !== 'string' || !image.startsWith('data:image/')) {
     return res.status(400).json({ success: false, error: 'Provide a photo.' });
-  }
-
-  if (MOCK_UNLOCK) {
-    const recognized = Math.random() < 0.8;
-    return res.json({ success: true, recognized, name: null, mock: true });
   }
 
   try {
@@ -107,5 +98,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Enrollment app running at http://localhost:${PORT}`);
   console.log(`Forwarding enrollments to Pi at: ${PI_URL}`);
-  if (MOCK_UNLOCK) console.log('Unlock is simulated (set PI_URL to use the real Pi).');
 });
