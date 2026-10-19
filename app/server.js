@@ -11,7 +11,7 @@ const app = express();
 
 // Where the Raspberry Pi's Flask server is listening.
 // Override with: PI_URL=http://192.168.1.42:5000 npm start
-const PI_URL = process.env.PI_URL || 'http://raspberrypi.local:5000';
+const PI_URL = process.env.PI_URL || 'http://10.101.156.251:5000';
 
 app.use(cors());
 app.use(express.json({ limit: '15mb' })); // photos as base64 can be a few MB each
