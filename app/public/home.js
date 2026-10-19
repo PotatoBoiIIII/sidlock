@@ -25,6 +25,7 @@ const SCAN_TIMEOUT_MS = 20000;
 const MIN_CHECK_MS = 700; // keep "Checking…" up briefly so the result doesn't snap in
 const RESET_AFTER_SUCCESS_MS = 6000;
 const MAX_WIDTH = 640;
+const HANDS_WAIT_MS = 8000; // max wait for hand tracking before scanning anyway
 
 const ICONS = {
   success: '<svg viewBox="0 0 52 52"><path d="M14 27 l8 8 l16 -18" /></svg>',
@@ -37,11 +38,14 @@ const detectorReady = loadFaceDetector().catch((err) => {
   return null;
 });
 
+// Hand tracking for the secret CV sign also starts loading now. Scanning waits
+// for it, otherwise the face unlock fires before the sign can be seen.
+const cv = createCvWatcher({ video, scanner, debugAfter: scanStatus });
+
 const box = createSmoothBox(overlay);
 const hint = createHint(document.getElementById('hint'));
 
 let detector = null;
-let cv = null;
 let stream = null;
 let scanning = false;
 let steadySince = 0;
@@ -126,16 +130,16 @@ function scanLoop() {
       overlay.width = video.videoWidth;
       overlay.height = video.videoHeight;
     }
-    cv?.check(now);
+    cv.check(now);
 
     if (detector) {
       const result = checkFace(detector.detectForVideo(video, now).detections);
       // Wait while hands are up, so making the secret sign doesn't trigger an unlock.
-      const ready = result.ok && !cv?.handsVisible();
+      const ready = result.ok && !cv.handsVisible();
       steadySince = ready ? steadySince || now : 0;
       const hold = ready ? Math.min(1, (now - steadySince) / HOLD_MS) : 0;
 
-      box.draw(result.box, { hold, ready, before: (ctx) => cv?.draw(ctx) });
+      box.draw(result.box, { hold, ready, before: (ctx) => cv.draw(ctx) });
       hint.set(result.hint, ready, now);
 
       if (hold >= 1) {
@@ -170,7 +174,7 @@ async function startScan() {
 
   setStatus('Getting ready…');
   detector = await detectorReady;
-  cv ||= createCvWatcher({ video, scanner, debugAfter: scanStatus });
+  await Promise.race([cv.ready, wait(HANDS_WAIT_MS)]);
   setStatus('Looking for your face…');
 
   scanner.classList.add('scanning');

@@ -23,7 +23,8 @@ export function createCvWatcher({ video, scanner, debugAfter }) {
   let lastCheck = 0;
 
   // Loaded in the background; if it fails, the easter egg quietly doesn't work.
-  loadHands()
+  // `ready` always resolves, so callers can wait on it without handling errors.
+  const ready = loadHands()
     .then((landmarker) => {
       hands = landmarker;
     })
@@ -65,6 +66,8 @@ export function createCvWatcher({ video, scanner, debugAfter }) {
   }
 
   return {
+    ready,
+
     // Call once per video frame.
     check(now) {
       if (!hands || ++frame % CHECK_EVERY !== 0) return;
