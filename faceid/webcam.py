@@ -2,7 +2,7 @@ import time
 import cv2
 import numpy as np
 import face_recognition
-
+import os
 SCALE = 0.5  # shrink frames for faster detection (0.25 is faster still)
 
 
@@ -14,9 +14,18 @@ def encode(path):
     return encodings[0]
 
 
-known_face_encodings = [encode("obama.jpg"), encode("biden.jpg")]
-known_face_names = ["Barack Obama", "Joe Biden"]
 
+known_face_encodings = []
+known_face_names = []
+for filename in sorted(os.listdir("./faces")):
+    if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+        image = face_recognition.load_image_file(os.path.join("faces", filename))
+        found = face_recognition.face_encodings(image)
+        if found:
+            known_face_encodings.append(found[0])
+            known_face_names.append(os.path.splitext(filename)[0])
+        else:
+            print(f"No face found in {filename}, skipping")
 # Open the camera with the settings that worked in ffmpeg
 cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
